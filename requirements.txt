@@ -1,1 +1,12 @@
-# Astro Runtime includes the following pre-installed providers packages: https://docs.astronomer.io/astro/runtime-image-architecture#provider-packages
+beautifulsoup4==4.12.3
+certifi==2024.2.2
+charset-normalizer==3.3.2
+colorama==0.4.6
+filelock==3.13.4
+gdown==5.1.0
+idna==3.7
+PySocks==1.7.1
+requests==2.31.0
+soupsieve==2.5
+tqdm==4.66.2
+urllib3==2.2.1

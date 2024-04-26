@@ -17,4 +17,6 @@ def pipeline_gdrive_download():
     @task(task_id= 'calling_class_gdown')
     def instantiate():
         downloader = GdownDownloader()
-        downloader.download_files() 
+        downloader.download_files()
+        
+pipeline_gdrive_download()
