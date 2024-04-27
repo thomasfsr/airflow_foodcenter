@@ -5,7 +5,9 @@ import time
 
 load_dotenv()
 
-def export_csvs_to_postgresql(data_folder:str, external_url:str):
+url = os.getenv('external_url')
+
+def export_csvs_to_postgresql(data_folder:str= 'data', external_url:str=url):
     start_time = time.time()
 
     for file in os.listdir(data_folder):

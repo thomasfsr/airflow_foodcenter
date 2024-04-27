@@ -1,6 +1,7 @@
 from airflow.decorators import dag, task
 from datetime import datetime
 from include.extract_with_gdown import GdownDownloader
+from include.export_to_postgre_polars import export_csvs_to_postgresql
 
 @dag(
     start_date=datetime(2024, 4, 26),
@@ -18,5 +19,10 @@ def pipeline_gdrive_download():
     def instantiate():
         downloader = GdownDownloader()
         downloader.download_files()
+    
+    @task(task_id = 'exporting_posgre')
+    def export():
+        export_csvs_to_postgresql()
+
         
 pipeline_gdrive_download()
