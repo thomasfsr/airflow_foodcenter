@@ -13,7 +13,6 @@ def export_csvs_to_postgresql(data_folder:str= 'data', external_url:str=url):
     for file in os.listdir(data_folder):
             tablename = file.split('.')[0]
             file_path = os.path.join(data_folder, file)
-            
             df = pl.read_csv(file_path, encoding='ISO-8859-1', infer_schema_length=1000)
             df.write_database(
                 connection=external_url,
