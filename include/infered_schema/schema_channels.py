@@ -4,6 +4,10 @@ schema = DataFrameSchema(
     columns={
         "channel_id": Column(
             dtype="int64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=1.0),
+                Check.less_than_or_equal_to(max_value=49.0),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -38,6 +42,10 @@ schema = DataFrameSchema(
     checks=None,
     index=Index(
         dtype="int64",
+        checks=[
+            Check.greater_than_or_equal_to(min_value=0.0),
+            Check.less_than_or_equal_to(max_value=39.0),
+        ],
         nullable=False,
         coerce=False,
         name=None,

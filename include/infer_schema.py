@@ -1,7 +1,7 @@
-import pandera
 import pandas as pd
 import os
 from time import time
+from pandera import infer_schema
 
 
 def infering(input_folder:str = 'data', 
@@ -14,7 +14,7 @@ def infering(input_folder:str = 'data',
         filename = file.split('.')[0]
         filepath = os.path.join(input_folder,file)
         df = pd.read_csv(filepath,encoding='ISO-8859-1')
-        schema = pandera.infer_schema(df)
+        schema = infer_schema(df)
         output_file_path = os.path.join(output_path, f"schema_{filename}.py")
         with open(output_file_path, "w", encoding='ISO-8859-1') as arquivo:
             arquivo.write(schema.to_script())

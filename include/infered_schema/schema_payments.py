@@ -4,6 +4,10 @@ schema = DataFrameSchema(
     columns={
         "payment_id": Column(
             dtype="int64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=4427917.0),
+                Check.less_than_or_equal_to(max_value=5540806.0),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -14,6 +18,10 @@ schema = DataFrameSchema(
         ),
         "payment_order_id": Column(
             dtype="int64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=68410055.0),
+                Check.less_than_or_equal_to(max_value=93139817.0),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -24,6 +32,10 @@ schema = DataFrameSchema(
         ),
         "payment_amount": Column(
             dtype="float64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=0.0),
+                Check.less_than_or_equal_to(max_value=100000.11),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -34,6 +46,10 @@ schema = DataFrameSchema(
         ),
         "payment_fee": Column(
             dtype="float64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=0.0),
+                Check.less_than_or_equal_to(max_value=2000.0),
+            ],
             nullable=True,
             unique=False,
             coerce=False,
@@ -68,6 +84,10 @@ schema = DataFrameSchema(
     checks=None,
     index=Index(
         dtype="int64",
+        checks=[
+            Check.greater_than_or_equal_to(min_value=0.0),
+            Check.less_than_or_equal_to(max_value=400833.0),
+        ],
         nullable=False,
         coerce=False,
         name=None,

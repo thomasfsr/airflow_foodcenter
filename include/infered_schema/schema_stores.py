@@ -4,6 +4,10 @@ schema = DataFrameSchema(
     columns={
         "store_id": Column(
             dtype="int64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=3.0),
+                Check.less_than_or_equal_to(max_value=4679.0),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -14,6 +18,10 @@ schema = DataFrameSchema(
         ),
         "hub_id": Column(
             dtype="int64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=2.0),
+                Check.less_than_or_equal_to(max_value=91.0),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -46,6 +54,10 @@ schema = DataFrameSchema(
         ),
         "store_plan_price": Column(
             dtype="float64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=0.0),
+                Check.less_than_or_equal_to(max_value=49.9),
+            ],
             nullable=True,
             unique=False,
             coerce=False,
@@ -56,6 +68,10 @@ schema = DataFrameSchema(
         ),
         "store_latitude": Column(
             dtype="float64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=-30.085743),
+                Check.less_than_or_equal_to(max_value=-19.8753564),
+            ],
             nullable=True,
             unique=False,
             coerce=False,
@@ -66,6 +82,10 @@ schema = DataFrameSchema(
         ),
         "store_longitude": Column(
             dtype="float64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=-51.245997),
+                Check.less_than_or_equal_to(max_value=-43.176536),
+            ],
             nullable=True,
             unique=False,
             coerce=False,
@@ -78,6 +98,10 @@ schema = DataFrameSchema(
     checks=None,
     index=Index(
         dtype="int64",
+        checks=[
+            Check.greater_than_or_equal_to(min_value=0.0),
+            Check.less_than_or_equal_to(max_value=950.0),
+        ],
         nullable=False,
         coerce=False,
         name=None,

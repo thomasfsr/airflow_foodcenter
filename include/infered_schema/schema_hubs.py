@@ -4,6 +4,10 @@ schema = DataFrameSchema(
     columns={
         "hub_id": Column(
             dtype="int64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=2.0),
+                Check.less_than_or_equal_to(max_value=91.0),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -47,6 +51,10 @@ schema = DataFrameSchema(
         ),
         "hub_latitude": Column(
             dtype="float64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=-30.085743),
+                Check.less_than_or_equal_to(max_value=-22.8858199),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -57,6 +65,10 @@ schema = DataFrameSchema(
         ),
         "hub_longitude": Column(
             dtype="float64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=-51.245997),
+                Check.less_than_or_equal_to(max_value=-43.1821807),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -69,6 +81,10 @@ schema = DataFrameSchema(
     checks=None,
     index=Index(
         dtype="int64",
+        checks=[
+            Check.greater_than_or_equal_to(min_value=0.0),
+            Check.less_than_or_equal_to(max_value=31.0),
+        ],
         nullable=False,
         coerce=False,
         name=None,

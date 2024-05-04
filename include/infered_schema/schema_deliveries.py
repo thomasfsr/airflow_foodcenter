@@ -4,6 +4,10 @@ schema = DataFrameSchema(
     columns={
         "delivery_id": Column(
             dtype="int64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=2174658.0),
+                Check.less_than_or_equal_to(max_value=3144739.0),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -14,6 +18,10 @@ schema = DataFrameSchema(
         ),
         "delivery_order_id": Column(
             dtype="int64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=68409030.0),
+                Check.less_than_or_equal_to(max_value=93139817.0),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -24,6 +32,10 @@ schema = DataFrameSchema(
         ),
         "driver_id": Column(
             dtype="float64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=133.0),
+                Check.less_than_or_equal_to(max_value=66459.0),
+            ],
             nullable=True,
             unique=False,
             coerce=False,
@@ -34,6 +46,10 @@ schema = DataFrameSchema(
         ),
         "delivery_distance_meters": Column(
             dtype="float64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=0.0),
+                Check.less_than_or_equal_to(max_value=7251291.0),
+            ],
             nullable=True,
             unique=False,
             coerce=False,
@@ -57,6 +73,10 @@ schema = DataFrameSchema(
     checks=None,
     index=Index(
         dtype="int64",
+        checks=[
+            Check.greater_than_or_equal_to(min_value=0.0),
+            Check.less_than_or_equal_to(max_value=378842.0),
+        ],
         nullable=False,
         coerce=False,
         name=None,

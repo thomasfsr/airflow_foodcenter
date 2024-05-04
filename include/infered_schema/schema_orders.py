@@ -4,6 +4,10 @@ schema = DataFrameSchema(
     columns={
         "order_id": Column(
             dtype="int64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=68405119.0),
+                Check.less_than_or_equal_to(max_value=93139817.0),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -14,6 +18,10 @@ schema = DataFrameSchema(
         ),
         "store_id": Column(
             dtype="int64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=3.0),
+                Check.less_than_or_equal_to(max_value=4679.0),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -24,6 +32,10 @@ schema = DataFrameSchema(
         ),
         "channel_id": Column(
             dtype="int64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=1.0),
+                Check.less_than_or_equal_to(max_value=49.0),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -34,6 +46,10 @@ schema = DataFrameSchema(
         ),
         "payment_order_id": Column(
             dtype="int64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=68405119.0),
+                Check.less_than_or_equal_to(max_value=93139817.0),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -44,6 +60,10 @@ schema = DataFrameSchema(
         ),
         "delivery_order_id": Column(
             dtype="int64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=68405119.0),
+                Check.less_than_or_equal_to(max_value=93139817.0),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -65,6 +85,10 @@ schema = DataFrameSchema(
         ),
         "order_amount": Column(
             dtype="float64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=0.0),
+                Check.less_than_or_equal_to(max_value=1788306.11),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -75,6 +99,10 @@ schema = DataFrameSchema(
         ),
         "order_delivery_fee": Column(
             dtype="float64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=0.0),
+                Check.less_than_or_equal_to(max_value=990.11),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -85,6 +113,10 @@ schema = DataFrameSchema(
         ),
         "order_delivery_cost": Column(
             dtype="float64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=0.0),
+                Check.less_than_or_equal_to(max_value=156.0),
+            ],
             nullable=True,
             unique=False,
             coerce=False,
@@ -95,6 +127,10 @@ schema = DataFrameSchema(
         ),
         "order_created_hour": Column(
             dtype="int64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=0.0),
+                Check.less_than_or_equal_to(max_value=23.0),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -105,6 +141,10 @@ schema = DataFrameSchema(
         ),
         "order_created_minute": Column(
             dtype="int64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=0.0),
+                Check.less_than_or_equal_to(max_value=59.0),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -115,6 +155,10 @@ schema = DataFrameSchema(
         ),
         "order_created_day": Column(
             dtype="int64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=1.0),
+                Check.less_than_or_equal_to(max_value=31.0),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -125,6 +169,10 @@ schema = DataFrameSchema(
         ),
         "order_created_month": Column(
             dtype="int64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=1.0),
+                Check.less_than_or_equal_to(max_value=4.0),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -135,6 +183,10 @@ schema = DataFrameSchema(
         ),
         "order_created_year": Column(
             dtype="int64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=2021.0),
+                Check.less_than_or_equal_to(max_value=2021.0),
+            ],
             nullable=False,
             unique=False,
             coerce=False,
@@ -233,6 +285,10 @@ schema = DataFrameSchema(
         ),
         "order_metric_collected_time": Column(
             dtype="float64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=-1.47),
+                Check.less_than_or_equal_to(max_value=2050.4),
+            ],
             nullable=True,
             unique=False,
             coerce=False,
@@ -243,6 +299,10 @@ schema = DataFrameSchema(
         ),
         "order_metric_paused_time": Column(
             dtype="float64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=-2728.35),
+                Check.less_than_or_equal_to(max_value=11712.28),
+            ],
             nullable=True,
             unique=False,
             coerce=False,
@@ -253,6 +313,10 @@ schema = DataFrameSchema(
         ),
         "order_metric_production_time": Column(
             dtype="float64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=0.0),
+                Check.less_than_or_equal_to(max_value=85662.03),
+            ],
             nullable=True,
             unique=False,
             coerce=False,
@@ -263,6 +327,10 @@ schema = DataFrameSchema(
         ),
         "order_metric_walking_time": Column(
             dtype="float64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=-1.42),
+                Check.less_than_or_equal_to(max_value=2735.52),
+            ],
             nullable=True,
             unique=False,
             coerce=False,
@@ -273,6 +341,10 @@ schema = DataFrameSchema(
         ),
         "order_metric_expediton_speed_time": Column(
             dtype="float64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=-0.82),
+                Check.less_than_or_equal_to(max_value=11718.2),
+            ],
             nullable=True,
             unique=False,
             coerce=False,
@@ -283,6 +355,10 @@ schema = DataFrameSchema(
         ),
         "order_metric_transit_time": Column(
             dtype="float64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=-4.1),
+                Check.less_than_or_equal_to(max_value=154261.1),
+            ],
             nullable=True,
             unique=False,
             coerce=False,
@@ -293,6 +369,10 @@ schema = DataFrameSchema(
         ),
         "order_metric_cycle_time": Column(
             dtype="float64",
+            checks=[
+                Check.greater_than_or_equal_to(min_value=0.33),
+                Check.less_than_or_equal_to(max_value=154277.32),
+            ],
             nullable=True,
             unique=False,
             coerce=False,
@@ -305,6 +385,10 @@ schema = DataFrameSchema(
     checks=None,
     index=Index(
         dtype="int64",
+        checks=[
+            Check.greater_than_or_equal_to(min_value=0.0),
+            Check.less_than_or_equal_to(max_value=368998.0),
+        ],
         nullable=False,
         coerce=False,
         name=None,
