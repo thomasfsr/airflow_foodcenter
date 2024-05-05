@@ -20,15 +20,16 @@ class Postgres:
         self.Session = sessionmaker(bind=self.engine)
 
 
-    def create_schema(self):
+    def create_schema(self, schema_name=None):
         session = self.Session()
-        schema_name = self.schema_name
+        if schema_name is None:
+            schema_name = self.schema_name
         try:
             session.execute(CreateSchema(schema_name))
             session.commit()
         except ProgrammingError:
             session.rollback()
-            print(f"Schema '{self.schema_name}' already exists.")
+            print(f"Schema '{schema_name}' already exists.")
         finally:
             session.close()
     
@@ -122,4 +123,6 @@ raw_schema = 'raw'
 if __name__ == '__main__':
     instance = Postgres(url, raw_schema)
     instance.create_schema()
+    instance.create_schema('silver')
+    instance.create_schema('gold')
     instance.export_csvs_to_postgresql(folder)
