@@ -12,7 +12,7 @@ import polars as pl
 from infered_schema.schemas import schema_channels, schema_hubs, schema_deliveries,\
       schema_drives, schema_orders, schema_payments, schema_stores
 
-class Postgres:
+class Postgres_Pipeline:
     def __init__(self, url:str, schema_name:str):
         self.url = url
         self.schema_name = schema_name
@@ -118,10 +118,9 @@ class Postgres:
 load_dotenv()
 url = os.getenv('external_url')
 folder = 'data'
-raw_schema = 'raw'
 
 if __name__ == '__main__':
-    instance = Postgres(url, raw_schema)
+    instance = Postgres_Pipeline(url, schema_name='raw')
     instance.create_schema()
     instance.create_schema('silver')
     instance.create_schema('gold')
