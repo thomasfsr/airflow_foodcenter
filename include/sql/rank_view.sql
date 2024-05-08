@@ -181,4 +181,4 @@ with delivered as (
 		select * from rank_drivers_biker_free
 		order by ranking asc)
 		
-		select * from concating
+		select * from concating	
