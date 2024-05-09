@@ -2,8 +2,8 @@ from airflow.decorators import dag, task
 from datetime import datetime
 from include.extract_with_gdown import GdownDownloader
 from include.posgres_raw import Postgres_Pipeline
-import os 
-from dotenv import load_dotenv
+#import os 
+#from dotenv import load_dotenv
 
 @dag(
     #start_date=datetime(2024, 5, 8),
@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 def gdrive_download():
 
     @task(task_id= 'calling_class_gdown')
-    def instantiate():
+    def downloading():
         downloader = GdownDownloader()
         downloader.download_files()
     
@@ -66,8 +66,9 @@ def postgres_pipe(url: str,
     tables_exported >> mv_created
 
 gdrive_download()
-load_dotenv()
-url = os.getenv('external_url')
+#load_dotenv()
+#url = os.getenv('external_url')
+url = 'postgresql://ifood_db_user:uYcDYPbDtTynSFHaEa9sGy07OKOK6zhl@dpg-cogk7acf7o1s73811hv0-a.oregon-postgres.render.com/ifood_db'
 folder = 'data'
 mv_path = '../include/sql/materialized_views.sql'
 mv_rank = '../include/sql/rank_view.sql'

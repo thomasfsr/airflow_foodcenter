@@ -128,13 +128,13 @@ class Postgres_Pipeline:
         elapsed_time = end_time - start_time
         print(f"It took {elapsed_time} seconds")
 
-load_dotenv()
-url = os.getenv('external_url')
-folder = 'data'
-
-if __name__ == '__main__':
-    instance = Postgres_Pipeline(url, schema_name='raw')
-    instance.create_schema()
-    instance.create_schema('silver')
-    instance.create_schema('gold')
-    instance.export_csvs_to_postgresql(folder)
+#load_dotenv()
+#url = os.getenv('external_url')
+#folder = 'data'
+#
+#if __name__ == '__main__':
+#    instance = Postgres_Pipeline(url, schema_name='raw')
+#    instance.create_schema()
+#    instance.create_schema('silver')
+#    instance.create_schema('gold')
+#    instance.export_csvs_to_postgresql(folder)
