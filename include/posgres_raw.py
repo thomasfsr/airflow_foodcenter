@@ -44,6 +44,19 @@ class Postgres_Pipeline:
         finally:
             session.close()
 
+    def execute_sql_from_file(self, file_path):
+        session = self.Session()
+        try:
+            with open(file_path, 'r') as sql_file:
+                sql_statement = sql_file.read()
+                session.execute(sql_statement)
+                session.commit()
+        except Exception as e:
+            session.rollback()
+            print("Error:", e)
+        finally:
+            session.close()
+
     @pa.check_output(schema=schema_channels, lazy=True)
     def pandas_read_channels(self, path:str):
         df = pd.read_csv(path, encoding='ISO-8859-1')
