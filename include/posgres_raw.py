@@ -1,4 +1,4 @@
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 import os
 import pandas as pd
 import time
@@ -9,7 +9,7 @@ from sqlalchemy.exc import ProgrammingError
 import pandera as pa
 import polars as pl
 
-from infered_schema.schemas import schema_channels, schema_hubs, schema_deliveries,\
+from .infered_schema.schemas import schema_channels, schema_hubs, schema_deliveries,\
       schema_drives, schema_orders, schema_payments, schema_stores
 
 class Postgres_Pipeline:
@@ -121,7 +121,7 @@ class Postgres_Pipeline:
                     connection=url,
                     table_name=f'{schema_name}.{tablename}',
                     if_table_exists='replace',
-                    engine='sqlalchemy'
+                    engine='adbc'
                 )
                 print(f'{file} was written in PostgreSQL')
         end_time = time.time()
