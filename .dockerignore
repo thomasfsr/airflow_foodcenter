@@ -6,4 +6,4 @@ logs/
 .venv
 airflow.db
 airflow.cfg
-credentials/
+#credentials/

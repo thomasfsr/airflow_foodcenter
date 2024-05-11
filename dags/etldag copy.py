@@ -31,8 +31,8 @@ def postgres_pipe(url: str,
 
     @task(task_id= 'postgre_instantiate', trigger_rule="all_done",)
     def instantiate():
-        obj= Postgres_Pipeline(url, schema_name)
-        return obj
+        instance = Postgres_Pipeline(url, schema_name)
+        return instance
     
     @task(task_id = 'create_schema', trigger_rule="all_done")
     def creating_schema(instance):

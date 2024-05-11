@@ -46,6 +46,6 @@ def download_from_gdrive(data_folder: str = "data"):
             else:
                 print(f"File type **{type}** not supported.")
 
-#if __name__ == '__main__':
-#    create_data_dir()
-#    download_from_gdrive()
+if __name__ == '__main__':
+    create_data_dir()
+    download_from_gdrive()

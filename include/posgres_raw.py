@@ -1,4 +1,3 @@
-#from dotenv import load_dotenv
 import os
 import pandas as pd
 import time
@@ -8,28 +7,27 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import ProgrammingError
 import pandera as pa
 import polars as pl
+#from dotenv import load_dotenv
 
-from .infered_schema.schemas import schema_channels, schema_hubs, schema_deliveries,\
+from include.session import SessionLocal
+
+from include.infered_schema.schemas import schema_channels, schema_hubs, schema_deliveries,\
       schema_drives, schema_orders, schema_payments, schema_stores
 
 class Postgres_Pipeline:
-    def __init__(self, url:str, schema_name:str):
-        self.url = url
+    def __init__(self, schema_name:str):
         self.schema_name = schema_name
-        self.engine = create_engine(url)
-        self.Session = sessionmaker(bind=self.engine)
-
 
     def create_schema(self, schema_name=None):
-        session = self.Session()
+        session = SessionLocal()
         if schema_name is None:
             schema_name = self.schema_name
         try:
-            session.execute(CreateSchema(schema_name))
+            session.execute(f"CREATE SCHEMA IF NOT EXISTS {schema_name}")
             session.commit()
-        except ProgrammingError:
+        except ProgrammingError as e:
             session.rollback()
-            print(f"Schema '{schema_name}' already exists.")
+            print(f"Error creating schema '{schema_name}': {e}")
         finally:
             session.close()
     
@@ -131,7 +129,7 @@ class Postgres_Pipeline:
 #load_dotenv()
 #url = os.getenv('external_url')
 #folder = 'data'
-#
+
 #if __name__ == '__main__':
 #    instance = Postgres_Pipeline(url, schema_name='raw')
 #    instance.create_schema()
