@@ -1,11 +1,10 @@
 import os
 import pandas as pd
-import time
-from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, text
 from sqlalchemy.exc import ProgrammingError
 import pandera as pa
-import polars as pl
+#import polars as pl
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -30,7 +29,7 @@ def create_schema(schema_name:str='raw', url:str=url):
             session.rollback()
             print(f"Error creating schema '{schema_name}': {e}")
 
-def execute_sql_from_file(file_path:str, url:str=url):
+def execute_sql_from_file(file_path:str=None, url:str=url):
     
     engine = create_engine(url)
     conn = sessionmaker(bind=engine)
@@ -41,7 +40,7 @@ def execute_sql_from_file(file_path:str, url:str=url):
     with conn() as session:
         try:
             with open(file_path, 'r') as sql_file:
-                sql_statement = sql_file.read()
+                sql_statement = text(sql_file.read())
                 session.execute(sql_statement)
                 session.commit()
         except Exception as e:
@@ -122,13 +121,18 @@ def export_csvs_to_postgresql(data_folder: str = 'data', schema_name: str = 'raw
             tablename = file.split('.')[0]
             print(file_path)
             df = reader(path=file_path)
-            df = pl.DataFrame._from_pandas(df)
-            df.write_database(
-                connection=url,
-                table_name=f'{schema_name}.{tablename}',
-                if_table_exists='replace',
-                engine='sqlalchemy'
-            )
+            df.to_sql(name=tablename,
+                      con=url,
+                      schema='raw',
+                      if_exists='replace'
+                      )
+            #df = pl.DataFrame._from_pandas(df)
+            #df.write_database(
+            #    connection=url,
+            #    table_name=f'{schema_name}.{tablename}',
+            #    if_table_exists='replace',
+            #    engine='sqlalchemy'
+            #)
             print(f'{file} was written in PostgreSQL')
         else:
             print(f"No reader found for file: {file}")

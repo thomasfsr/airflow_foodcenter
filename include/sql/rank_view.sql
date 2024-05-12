@@ -1,5 +1,6 @@
 --ctes mas precisa ser materialized view na silver.
 -- view task 1
+
 with delivered as (
 	select * from deliveries d
 	where d.delivery_status = upper('delivered')

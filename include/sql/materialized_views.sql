@@ -1,3 +1,4 @@
+SET search_path TO raw, silver, gold;
 CREATE MATERIALIZED VIEW silver.delivered_mv AS
 WITH delivered AS (
     SELECT * 
@@ -10,8 +11,8 @@ delivered_notnull AS (
     WHERE dd.driver_id IS NOT NULL
 )
 SELECT *
-FROM delivered_notnull;
-
+FROM delivered_notnull
+;
 
 CREATE MATERIALIZED VIEW silver.delivered_clean_mv AS
 with quartiles as (
@@ -41,6 +42,7 @@ with quartiles as (
 	)
 	select * from delivered_no_outliers
 ;
+
     CREATE MATERIALIZED VIEW silver.ranking_all AS
 	with all_rank_drivers as (
 		SELECT 
@@ -56,6 +58,7 @@ with quartiles as (
 	)
 	select * from all_rank_drivers
 ;
+
 DO $$
 BEGIN
     EXECUTE 'CREATE MATERIALIZED VIEW gold.ranking_20_stratified_mv_' || to_char(current_date, 'YYYY_MM_DD') || ' AS
