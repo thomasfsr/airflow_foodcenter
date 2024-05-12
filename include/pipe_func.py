@@ -4,7 +4,6 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import ProgrammingError
 import pandera as pa
-#import polars as pl
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -78,32 +77,7 @@ def pandas_read_stores(path:str):
     df = pd.read_csv(path, encoding='ISO-8859-1')
     return df
 
-#def export_csvs_to_postgresql(data_folder:str='data', schema_name:str='raw', url:str=url):
-#
-#    readers = [pandas_read_channels,
-#               pandas_read_deliveries,
-#               pandas_read_drivers,
-#               pandas_read_hubs,
-#               pandas_read_orders,
-#               pandas_read_payments,
-#               pandas_read_stores
-#             ]
-#    for file, reader in zip(os.listdir(data_folder), readers):
-#            tablename = file.split('.')[0]
-#            file_path = os.path.join(data_folder, file)
-#            print(file_path)
-#            df = reader(path= file_path)
-#            df = pl.DataFrame._from_pandas(df)
-#            df.write_database(
-#                connection=url,
-#                table_name=f'{schema_name}.{tablename}',
-#                if_table_exists='replace',
-#                engine='sqlalchemy'
-#            )
-#            print(f'{file} was written in PostgreSQL')
-
 def export_csvs_to_postgresql(data_folder: str = 'data', schema_name: str = 'raw', url: str = url):
-    # Define a dictionary to map file names to reader functions
     file_reader_mapping = {
         'channels.csv': pandas_read_channels,
         'deliveries.csv': pandas_read_deliveries,
@@ -126,13 +100,6 @@ def export_csvs_to_postgresql(data_folder: str = 'data', schema_name: str = 'raw
                       schema='raw',
                       if_exists='replace'
                       )
-            #df = pl.DataFrame._from_pandas(df)
-            #df.write_database(
-            #    connection=url,
-            #    table_name=f'{schema_name}.{tablename}',
-            #    if_table_exists='replace',
-            #    engine='sqlalchemy'
-            #)
             print(f'{file} was written in PostgreSQL')
         else:
             print(f"No reader found for file: {file}")

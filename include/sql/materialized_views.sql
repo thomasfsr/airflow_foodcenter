@@ -14,7 +14,7 @@ SELECT *
 FROM delivered_notnull
 ;
 
-CREATE MATERIALIZED VIEW silver.delivered_clean_mv AS
+CREATE MATERIALIZED VIEW silver.delivered_no_out_mv AS
 with quartiles as (
     select  
         percentile_cont(0.25) WITHIN GROUP (ORDER BY delivery_distance_meters) AS Q1,
@@ -43,7 +43,7 @@ with quartiles as (
 	select * from delivered_no_outliers
 ;
 
-    CREATE MATERIALIZED VIEW silver.ranking_all AS
+    CREATE MATERIALIZED VIEW silver.ranking_all_mv AS
 	with all_rank_drivers as (
 		SELECT 
 		dno.driver_id,
@@ -53,7 +53,7 @@ with quartiles as (
     	RANK() OVER (ORDER BY SUM(delivery_distance_meters) DESC) AS ranking
 		FROM 
     	silver.delivered_no_out_mv dno
-    	join raw.drives d on dno.driver_id = d.driver_id
+    	join raw.drivers d on dno.driver_id = d.driver_id
 		GROUP BY dno.driver_id, d.driver_modal, d.driver_type
 	)
 	select * from all_rank_drivers
@@ -70,7 +70,7 @@ BEGIN
             FROM 
                 silver.delivered_no_out_mv dno
             JOIN 
-                raw.drives d ON dno.driver_id = d.driver_id
+                raw.drivers d ON dno.driver_id = d.driver_id
         ),
         proportion AS (
             SELECT 

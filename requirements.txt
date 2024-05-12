@@ -1,6 +1,5 @@
 # Astro Runtime includes the following pre-installed providers packages: https://docs.astronomer.io/astro/runtime-image-architecture#provider-packages
 pandas
-polars
 gdown
 sqlalchemy<2
 pandera==0.18.3

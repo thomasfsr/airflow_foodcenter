@@ -14,7 +14,7 @@ files_list = {
 }
 
 class GdownDownloader:
-    def __init__(self, files:Dict = files_list, output_folder:str='data', max_retries=3, retry_delay=1):
+    def __init__(self, files:Dict = files_list, output_folder:str='data', max_retries=4, retry_delay=1):
         self.files = files
         self.output_folder = output_folder
         self.max_retries = max_retries
@@ -39,6 +39,6 @@ class GdownDownloader:
             
             if not success:
                 print(f"Failed to download {filename} after {self.max_retries} retries.")
-
-downloader = GdownDownloader(files_list)
-downloader.download_files()
+def gdowner():
+    downloader = GdownDownloader()
+    downloader.download_files()
