@@ -5,92 +5,97 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.schema import CreateSchema
 from sqlalchemy import create_engine
 from sqlalchemy.exc import ProgrammingError
-import pandera as pa
+#import pandera as pa
 import polars as pl
 #from dotenv import load_dotenv
 
-from include.session import SessionLocal
-
-from include.infered_schema.schemas import schema_channels, schema_hubs, schema_deliveries,\
-      schema_drives, schema_orders, schema_payments, schema_stores
+#from include.infered_schema.schemas import schema_channels, schema_hubs, schema_deliveries,\
+#      schema_drives, schema_orders, schema_payments, schema_stores
 
 class Postgres_Pipeline:
-    def __init__(self, schema_name:str):
+    def __init__(self, 
+                 url:str, 
+                 schema_name:str):
+        self.url = url
         self.schema_name = schema_name
-
-    def create_schema(self, schema_name=None):
-        session = SessionLocal()
-        if schema_name is None:
-            schema_name = self.schema_name
-        try:
-            session.execute(f"CREATE SCHEMA IF NOT EXISTS {schema_name}")
-            session.commit()
-        except ProgrammingError as e:
-            session.rollback()
-            print(f"Error creating schema '{schema_name}': {e}")
-        finally:
-            session.close()
+        self.conn = self.eng()
+    
+    def eng(self):
+        engine = create_engine(self.url)
+        conn = sessionmaker(bind=engine)
+        return conn
+    
+    def create_schema(self, schema_n=None):
+        with self.conn() as session:
+            if schema_n is None:
+                schema_n = self.schema_name
+            try:
+                session.execute(CreateSchema(schema_n, if_not_exists=True))
+                session.commit()
+            except ProgrammingError as e:
+                session.rollback()
+                print(f"Error creating schema '{schema_n}': {e}")
     
     def execute_sql(self, sql_statement):
-        session = self.Session()
-        try:
-            session.execute(sql_statement)
-            session.commit()
-        except Exception as e:
-            session.rollback()
-            print("Error:", e)
-        finally:
-            session.close()
-
-    def execute_sql_from_file(self, file_path):
-        session = self.Session()
-        try:
-            with open(file_path, 'r') as sql_file:
-                sql_statement = sql_file.read()
+        with self.conn as session:
+            try:
                 session.execute(sql_statement)
                 session.commit()
-        except Exception as e:
-            session.rollback()
-            print("Error:", e)
-        finally:
-            session.close()
+            except Exception as e:
+                session.rollback()
+                print("Error:", e)
+            finally:
+                session.close()
 
-    @pa.check_output(schema=schema_channels, lazy=True)
+    def execute_sql_from_file(self, file_path):
+        with self.conn as session:
+            try:
+                with open(file_path, 'r') as sql_file:
+                    sql_statement = sql_file.read()
+                    session.execute(sql_statement)
+                    session.commit()
+            except Exception as e:
+                session.rollback()
+                print("Error:", e)
+            finally:
+                session.close()
+
+    #@pa.check_output(schema=schema_channels, lazy=True)
     def pandas_read_channels(self, path:str):
         df = pd.read_csv(path, encoding='ISO-8859-1')
         return df
 
-    @pa.check_output(schema=schema_deliveries, lazy=True)
+    #@pa.check_output(schema=schema_deliveries, lazy=True)
     def pandas_read_deliveries(self, path:str):
         df = pd.read_csv(path, encoding='ISO-8859-1')
         return df
 
 
-    @pa.check_output(schema=schema_drives, lazy=True)
+    #@pa.check_output(schema=schema_drives, lazy=True)
     def pandas_read_drives(self, path:str):
         df = pd.read_csv(path, encoding='ISO-8859-1')
         return df
 
 
-    @pa.check_output(schema=schema_hubs, lazy=True)
+    #@pa.check_output(schema=schema_hubs, lazy=True)
     def pandas_read_hubs(self, path:str):
         df = pd.read_csv(path, encoding='ISO-8859-1')
         return df
 
 
-    @pa.check_output(schema=schema_orders, lazy=True)
+    #@pa.check_output(schema=schema_orders, lazy=True)
     def pandas_read_orders(self, path:str):
         df = pd.read_csv(path, encoding='ISO-8859-1')
         return df
 
 
-    @pa.check_output(schema=schema_payments, lazy=True)
+    #@pa.check_output(schema=schema_payments, lazy=True)
     def pandas_read_payments(self, path:str):
         df = pd.read_csv(path, encoding='ISO-8859-1')
         return df
 
 
-    @pa.check_output(schema=schema_stores, lazy=True)
+    #@pa.check_output(schema=schema_stores, lazy=True)
     def pandas_read_stores(self, path:str):
         df = pd.read_csv(path, encoding='ISO-8859-1')
         return df

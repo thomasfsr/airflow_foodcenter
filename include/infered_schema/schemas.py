@@ -136,7 +136,7 @@ schema_deliveries = DataFrameSchema(
 
 from pandera import DataFrameSchema, Column, Check, Index, MultiIndex
 
-schema_drives = DataFrameSchema(
+schema_drivers = DataFrameSchema(
     columns={
         "driver_id": Column(
             dtype="int64",

@@ -1,26 +1,19 @@
 from airflow.decorators import dag, task
-from include.extract_with_google_api import create_data_dir, download_from_gdrive
-from include.posgres_raw import Postgres_Pipeline
-from typing import Dict
 import os 
-from dotenv import load_dotenv
-
-
+#from dotenv import load_dotenv
+#from typing import Dict
 @dag(
     #start_date=datetime(2024, 5, 8),
     description='Dag to export to postgresql in render.com',
     schedule=None,
     catchup=False,
-    tags=["postgre"],
-    
-)
-def postgres_pipe(url: str, 
-                  folder:str,
-                  mvs_path:str,
-                  rank_path:str,
-                  schema_name:str
-                  ):
-    
+    tags=["postgre"]
+    )
+def postgres_pipe():
+    #from include.posgres_raw import Postgres_Pipeline
+    from include.extract_with_google_api import create_data_dir, download_from_gdrive
+    from include.pipe_func import create_schema, \
+    execute_sql_from_file, export_csvs_to_postgresql
     @task(task_id= 'create_dir')
     def dir_data():
         create_data_dir()
@@ -28,56 +21,29 @@ def postgres_pipe(url: str,
     @task(task_id= 'download_from_gdrive', trigger_rule="all_done")
     def downloading():
         download_from_gdrive()
+        
+    @task(task_id = 'create_schemas', trigger_rule="all_done",)
+    def creating_schemas():
+        create_schema()
+        create_schema(schema_name='silver')
+        create_schema(schema_name='gold')
 
-    @task(task_id= 'postgre_instantiate', trigger_rule="all_done",)
-    def instantiate():
-        obj= Postgres_Pipeline(url, schema_name)
-        return obj
-    
-    @task(task_id = 'create_schema', trigger_rule="all_done")
-    def creating_schema(instance):
-        instance.create_schema()
-    
-    @task(task_id= 'create_silver_n_gold', trigger_rule="all_done")
-    def create_schema_silver_gold(instance):
-        instance.create_schema('silver')
-        instance.create_schema('gold')
-    
     @task(task_id='export_validated_tables', trigger_rule="all_done")
-    def export_tables(instance):
-        instance.export_csvs_to_postgresql(folder)
+    def export_tables():
+        export_csvs_to_postgresql()
 
     @task(task_id='create_mviews', trigger_rule="all_done")
-    def create_mvs(instance):
-        instance.execute_sql_from_file(mvs_path)
-        instance.execute_sql_from_file(rank_path)
+    def create_mvs():
+        execute_sql_from_file('include/sql/materialized_views.sql')
+        execute_sql_from_file('include/sql/rank_view.sql')
 
     dir_data_created = dir_data()
     downloaded = downloading()
-    instantiated_instance = instantiate()
-    schema_created = creating_schema(instantiated_instance)
-    silver_gold_created = create_schema_silver_gold(instantiated_instance)
-    tables_exported = export_tables(instantiated_instance)
-    mv_created = create_mvs(instantiated_instance)
+    schema_created = creating_schemas()
+    tables_exported = export_tables()
+    mv_created = create_mvs()
 
-    dir_data_created >> downloaded
-    downloaded >> instantiated_instance >> schema_created >> silver_gold_created >> tables_exported >> mv_created
+    dir_data_created >> downloaded >> schema_created
+    schema_created >> tables_exported >> mv_created
 
-load_dotenv()
-url_e = os.getenv('external_url')
-folder = 'data'
-mv_path = 'include/sql/materialized_views.sql'
-mv_rank = 'include/sql/rank_view.sql'
-schema_name = 'raw'
-
-files_list = {
-    "channels.csv": "https://drive.google.com/file/d/1wwBnWMfwR5RJZVZULHaWQALrclru-Oyp/view?usp=drive_link",
-    "payments.csv": "https://drive.google.com/file/d/1xtchHGwpD8s5_MOVCeMj_cMO6CvYcmS3/view?usp=drive_link",
-    "stores.csv": "https://drive.google.com/file/d/1k4pQ3zpNyCUqG2EL1AREGfBPmr5t_ZMK/view?usp=drive_link",
-    "orders.csv": "https://drive.google.com/file/d/1kiLBFv6_bR1fv1BahfrTEp5itDut9mVE/view?usp=drive_link",
-    "deliveries.csv": "https://drive.google.com/file/d/1ba9-21ppV1Nailp2pJ4RGPjJIJ143_xe/view?usp=drive_link",
-    "drives.csv": "https://drive.google.com/file/d/1JZlvYNvD2eVxjrj33s2T54s-itJTvXvI/view?usp=drive_link",
-    "hubs.csv": "https://drive.google.com/file/d/1CRRC8K2wHZiL2vdewjb90UT4EcBQQaN5/view?usp=drive_link",
-}
-
-postgres_pipe(url=url_e,folder=folder,mvs_path=mv_path,rank_path=mv_rank,schema_name=schema_name)
+postgres_pipe()

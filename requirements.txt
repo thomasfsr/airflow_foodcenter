@@ -3,12 +3,14 @@ pandas
 polars
 gdown
 sqlalchemy<2
-pandera
+pandera==0.18.3
 psycopg2-binary==2.9.9
 numpy
 pyarrow
 adbc-driver-postgresql==0.11.0
 python-dotenv<2.0
+pandas-datareader==0.10.0
+
 
 google-api-python-client==2.125.0
 google-auth-oauthlib==1.2.0
