@@ -48,31 +48,31 @@ def execute_sql_from_file(file_path:str=None, url:str=url):
         finally:
             session.close()
 
-@pa.check_output(schema=schema_channels, lazy=True)
+@pa.check_output(schema=schema_channels, lazy=True, sample=10)
 def pandas_read_channels(path:str):
     df = pd.read_csv(path, encoding='ISO-8859-1')
     return df
-@pa.check_output(schema=schema_deliveries, lazy=True)
+@pa.check_output(schema=schema_deliveries, lazy=True, sample=10)
 def pandas_read_deliveries(path:str):
     df = pd.read_csv(path, encoding='ISO-8859-1')
     return df
-@pa.check_output(schema=schema_drivers, lazy=True)
+@pa.check_output(schema=schema_drivers, lazy=True, sample=10)
 def pandas_read_drivers(path:str):
     df = pd.read_csv(path, encoding='ISO-8859-1')
     return df
-@pa.check_output(schema=schema_hubs, lazy=True)
+@pa.check_output(schema=schema_hubs, lazy=True, sample=10)
 def pandas_read_hubs(path:str):
     df = pd.read_csv(path, encoding='ISO-8859-1')
     return df
-@pa.check_output(schema=schema_orders, lazy=True)
+@pa.check_output(schema=schema_orders, lazy=True, sample=10)
 def pandas_read_orders(path:str):
     df = pd.read_csv(path, encoding='ISO-8859-1')
     return df
-@pa.check_output(schema=schema_payments, lazy=True)
+@pa.check_output(schema=schema_payments, lazy=True, sample=10)
 def pandas_read_payments(path:str):
     df = pd.read_csv(path, encoding='ISO-8859-1')
     return df
-@pa.check_output(schema=schema_stores, lazy=True)
+@pa.check_output(schema=schema_stores, lazy=True, sample=10)
 def pandas_read_stores(path:str):
     df = pd.read_csv(path, encoding='ISO-8859-1')
     return df
@@ -95,11 +95,7 @@ def export_csvs_to_postgresql(data_folder: str = 'data', schema_name: str = 'raw
             tablename = file.split('.')[0]
             print(file_path)
             df = reader(path=file_path)
-            df.to_sql(name=tablename,
-                      con=url,
-                      schema='raw',
-                      if_exists='replace'
-                      )
+            df.to_sql(name=tablename, con=url, schema='raw', if_exists='replace',chunksize=1000)
             print(f'{file} was written in PostgreSQL')
         else:
             print(f"No reader found for file: {file}")

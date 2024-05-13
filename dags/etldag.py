@@ -18,7 +18,7 @@ def postgres_pipe():
     #@task(task_id= 'download_from_gdrive', trigger_rule="all_done")
     #def downloading():
     #    download_from_gdrive()
-    @task(task_id = 'download csvs')
+    @task(task_id = 'download_csvs')
     def downloading():
         gdowner()
     
