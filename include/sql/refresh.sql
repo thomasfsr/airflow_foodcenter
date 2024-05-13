@@ -1,19 +1,18 @@
-REFRESH MATERIALIZED VIEW WITHOUT CONCURRENTLY silver.delivered_mv;
-REFRESH MATERIALIZED VIEW WITHOUT CONCURRENTLY silver.delivered_no_out_mv;
-REFRESH MATERIALIZED VIEW WITHOUT CONCURRENTLY silver.ranking_all_mv
---REFRESH MATERIALIZED VIEW WITHOUT CONCURRENTLY gold.ranking_20_stratified_mv;
+REFRESH MATERIALIZED VIEW silver.clean_delivered;
+REFRESH MATERIALIZED VIEW silver.ranking_all
+--Create new ranking 20 table:
 DO $$
 BEGIN
-    EXECUTE 'CREATE MATERIALIZED VIEW gold.ranking_20_stratified_mv_' || to_char(current_date, 'YYYY_MM_DD') || ' AS
+    EXECUTE 'CREATE MATERIALIZED VIEW gold.ranking_20_stratified_' || to_char(current_date, 'YYYY_MM_DD') || ' AS
         WITH clean_drivers AS (
             SELECT DISTINCT
-                dno.driver_id,
+                cd.driver_id,
                 d.driver_modal,
                 d.driver_type
             FROM 
-                silver.delivered_no_out_mv dno
+                silver.clean_delivered cd
             JOIN 
-                raw.drives d ON dno.driver_id = d.driver_id
+                raw.drivers d ON cd.driver_id = d.driver_id
         ),
         proportion AS (
             SELECT 
@@ -31,10 +30,12 @@ BEGIN
                 r.driver_id,
                 r.driver_modal,
                 r.driver_type,
-                r.sum_of_distance,
-                r.ranking   		
+                r.sum_of_amount_of_orders,
+		        r.sum_of_distance,
+                r.max_distance,
+                r.ranking
             FROM 
-                silver.ranking_all_mv r 	
+                silver.ranking_all r 	
             WHERE
                 r.driver_type = UPPER(''freelance'')
             AND
@@ -55,10 +56,12 @@ BEGIN
                 r.driver_id,
                 r.driver_modal,
                 r.driver_type,
-                r.sum_of_distance,
-                r.ranking   		
+                r.sum_of_amount_of_orders,
+		        r.sum_of_distance,
+                r.max_distance,
+                r.ranking		
             FROM 
-                silver.ranking_all_mv r 
+                silver.ranking_all r 
             WHERE
                 r.driver_type = UPPER(''logistic operator'')
             AND
@@ -79,10 +82,12 @@ BEGIN
                 r.driver_id,
                 r.driver_modal,
                 r.driver_type,
-                r.sum_of_distance,
-                r.ranking   		
+                r.sum_of_amount_of_orders,
+		        r.sum_of_distance,
+                r.max_distance,
+                r.ranking  		
             FROM 
-                silver.ranking_all_mv r 	
+                silver.ranking_all r 	
             WHERE
                 r.driver_type = UPPER(''freelance'')
             AND
@@ -103,10 +108,12 @@ BEGIN
                 r.driver_id,
                 r.driver_modal,
                 r.driver_type,
-                r.sum_of_distance,
-                r.ranking   		
+                r.sum_of_amount_of_orders,
+		        r.sum_of_distance,
+                r.max_distance,
+                r.ranking		
             FROM 
-                silver.ranking_all_mv r  	
+                silver.ranking_all r  	
             WHERE
                 r.driver_type = UPPER(''logistic operator'')
             AND
