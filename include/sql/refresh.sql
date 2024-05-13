@@ -1,5 +1,5 @@
 REFRESH MATERIALIZED VIEW silver.clean_delivered;
-REFRESH MATERIALIZED VIEW silver.ranking_all
+REFRESH MATERIALIZED VIEW silver.ranking_all;
 --Create new ranking 20 table:
 DO $$
 BEGIN
