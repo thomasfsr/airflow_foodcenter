@@ -32,17 +32,15 @@ def postgres_pipe():
     def export_tables():
         export_csvs_to_postgresql()
 
-    @task(task_id='create_mviews', trigger_rule="all_done")
+    @task(task_id='create_kpis', trigger_rule="all_done")
     def create_mvs():
-        execute_sql_from_file('include/sql/materialized_views.sql')
+        execute_sql_from_file('include/sql/creating.sql')
 
-    #dir_data_created = dir_data()
     downloaded = downloading()
     schema_created = creating_schemas()
     tables_exported = export_tables()
     mv_created = create_mvs()
 
-    #dir_data_created >> 
     downloaded >> schema_created
     schema_created >> tables_exported >> mv_created
 

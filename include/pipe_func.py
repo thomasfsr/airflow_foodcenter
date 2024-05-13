@@ -95,7 +95,7 @@ def export_csvs_to_postgresql(data_folder: str = 'data', schema_name: str = 'raw
             tablename = file.split('.')[0]
             print(file_path)
             df = reader(path=file_path)
-            df.to_sql(name=tablename, con=url, schema='raw', if_exists='replace',chunksize=1000)
+            df.to_sql(name=tablename, con=url, schema='raw', if_exists='fail',chunksize=2000)
             print(f'{file} was written in PostgreSQL')
         else:
             print(f"No reader found for file: {file}")

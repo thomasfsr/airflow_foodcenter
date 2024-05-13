@@ -1,31 +1,35 @@
 SET search_path TO raw, silver, gold;
 
 CREATE VIEW silver.delivered_v AS
-WITH delivered AS (
-    SELECT * 
-    FROM raw.deliveries d
-    WHERE d.delivery_status = UPPER('delivered')
+WITH delivered AS (select d.*,
+	o.order_amount ,
+	o.order_created_day ,
+	o.order_created_month ,
+	o.order_created_year ,
+	s.store_id ,
+	s.store_name ,
+	s.store_segment ,
+	s.store_plan_price ,
+	h.hub_name ,
+	h.hub_city ,
+	h.hub_state
+	from 
+	raw.deliveries d  
+	join raw.orders o on d.delivery_order_id = o.delivery_order_id 
+	join raw.stores s on o.store_id = s.store_id 
+	join raw.hubs h on s.hub_id = h.hub_id
+	WHERE d.delivery_status = UPPER('delivered')
 ),
-total_amount_o as(
-SELECT
-    o.delivery_order_id,
-    CAST(SUM(o.order_amount) AS DECIMAL(10, 2)) AS total_order_amount
-FROM
-    raw.orders o
-GROUP BY
-    o.delivery_order_id
-    ),
+
 delivered_notnull AS (
-    SELECT dd.*, 
-    ta.total_order_amount as order_amount
+    SELECT dd.*
     FROM delivered dd
-    join total_amount_o ta on dd.delivery_order_id = ta.delivery_order_id
     WHERE dd.driver_id IS NOT NULL
 )
 SELECT *
-FROM delivered_notnull
+FROM delivered_notnull;
 
---ouTliers in distance
+--outliers in distance
 CREATE VIEW silver.delivered_no_out_v AS
 with quartiles as (
     select  
@@ -55,7 +59,7 @@ with quartiles as (
 	select * from delivered_no_outliers
 ;
 --outliers in order amount 
-CREATE TABLE silver.delivered_no_out AS
+CREATE TABLE silver.delivered_clean AS
 with quartiles as (
     select  
         percentile_cont(0.25) WITHIN GROUP (ORDER BY order_amount) AS Q1,
@@ -95,7 +99,7 @@ CREATE TABLE silver.ranking_all AS
         MAX(dno.delivery_distance_meters) as max_distance,
     	RANK() OVER (ORDER BY SUM(delivery_distance_meters) DESC) AS ranking
 		FROM 
-    	silver.delivered_no_out dno
+    	silver.delivered_clean dno
     	join raw.drivers d on dno.driver_id = d.driver_id
 		GROUP BY dno.driver_id, d.driver_modal, d.driver_type
 	)
@@ -131,8 +135,10 @@ BEGIN
                 r.driver_id,
                 r.driver_modal,
                 r.driver_type,
-                r.sum_of_distance,
-                r.ranking   		
+                r.sum_of_amount_of_orders,
+		        r.sum_of_distance,
+                r.max_distance
+                r.ranking
             FROM 
                 silver.ranking_all r 	
             WHERE
@@ -155,8 +161,10 @@ BEGIN
                 r.driver_id,
                 r.driver_modal,
                 r.driver_type,
-                r.sum_of_distance,
-                r.ranking   		
+                r.sum_of_amount_of_orders,
+		        r.sum_of_distance,
+                r.max_distance
+                r.ranking		
             FROM 
                 silver.ranking_all r 
             WHERE
@@ -179,8 +187,10 @@ BEGIN
                 r.driver_id,
                 r.driver_modal,
                 r.driver_type,
-                r.sum_of_distance,
-                r.ranking   		
+                r.sum_of_amount_of_orders,
+		        r.sum_of_distance,
+                r.max_distance
+                r.ranking  		
             FROM 
                 silver.ranking_all r 	
             WHERE
@@ -203,8 +213,10 @@ BEGIN
                 r.driver_id,
                 r.driver_modal,
                 r.driver_type,
-                r.sum_of_distance,
-                r.ranking   		
+                r.sum_of_amount_of_orders,
+		        r.sum_of_distance,
+                r.max_distance
+                r.ranking		
             FROM 
                 silver.ranking_all r  	
             WHERE
