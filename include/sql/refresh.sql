@@ -1,16 +1,16 @@
-REFRESH MATERIALIZED VIEW silver.clean_delivered;
-REFRESH MATERIALIZED VIEW silver.ranking_all;
+REFRESH MATERIALIZED VIEW silver.clean_delivered_mv;
+REFRESH MATERIALIZED VIEW silver.ranking_all_mv;
 --Create new ranking 20 table:
 DO $$
 BEGIN
-    EXECUTE 'CREATE MATERIALIZED VIEW gold.ranking_20_stratified_' || to_char(current_date, 'YYYY_MM_DD') || ' AS
+    EXECUTE 'CREATE TABLE gold.ranking_20_stratified_' || to_char(current_date, 'YYYY_MM_DD') || ' AS
         WITH clean_drivers AS (
             SELECT DISTINCT
                 cd.driver_id,
                 d.driver_modal,
                 d.driver_type
             FROM 
-                silver.clean_delivered cd
+                silver.clean_delivered_mv cd
             JOIN 
                 raw.drivers d ON cd.driver_id = d.driver_id
         ),
@@ -35,7 +35,7 @@ BEGIN
                 r.max_distance,
                 r.ranking
             FROM 
-                silver.ranking_all r 	
+                silver.ranking_all_mv r 	
             WHERE
                 r.driver_type = UPPER(''freelance'')
             AND
@@ -61,7 +61,7 @@ BEGIN
                 r.max_distance,
                 r.ranking		
             FROM 
-                silver.ranking_all r 
+                silver.ranking_all_mv r 
             WHERE
                 r.driver_type = UPPER(''logistic operator'')
             AND
@@ -87,7 +87,7 @@ BEGIN
                 r.max_distance,
                 r.ranking  		
             FROM 
-                silver.ranking_all r 	
+                silver.ranking_all_mv r 	
             WHERE
                 r.driver_type = UPPER(''freelance'')
             AND
@@ -113,7 +113,7 @@ BEGIN
                 r.max_distance,
                 r.ranking		
             FROM 
-                silver.ranking_all r  	
+                silver.ranking_all_mv r  	
             WHERE
                 r.driver_type = UPPER(''logistic operator'')
             AND
