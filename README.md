@@ -10,15 +10,15 @@ Reports: https://airflow-foodcenter.onrender.com
 
 #### Passos para rodar a aplicação:  
 - Clonar repo:  
-'''bash
+```bash
 git clone https://github.com/thomasfsr/airflow_foodcenter
 cd airflow_foodcenter
-'''
+```
 - Instalar Astronomer:  
 Para rodar este projeto será necessário instalar o astro-cli que facilitará a instalação do AirFlow:
-'''bash
+```bash
 brew install astro 
-'''  
+``` 
 Antes de iniciar o Airflow via astro-cli algumas váriaveis de ambiente deverão ser passadas em um arquivo .env na raiz do projeto:  
   
 #pasta do google drive
@@ -31,13 +31,13 @@ host = ***
 port = 5432
 database_name = ***  
 external_url = ***  
-   
+  
 Obs.: A variável de ambiente folder só está disponivel porque é uma pasta pública no google drive. Porém os mesmos dados podem ser encontrados no Kaggle: https://www.kaggle.com/datasets/nosbielcs/brazilian-delivery-center
 
 - Startar o servidor airflow:  
-'''bash
+```bash
 astro dev start
-'''  
+``` 
   
 No painel do airflow deverá ser inicializado a DAG etldag primeiro e após concluído pode ser inicializado a DAG top20dag.  
 A primeira dag irá carregar as tabelas do google drive, validar as colunas com Pandera e, após validado, vai carregar as tabelas para o schema "Raw" do banco de dados PostgreSQL.  
@@ -50,14 +50,14 @@ A DAG top20dag é "startada" semanalmente, calculando os KPIs até aquele dia da
   
 #### Relatório com Streamlit:  
 Para inicializar é necessário instalar as dependências com o poetry:  
-'''bash
+```bash
 poetry shell  
 poetry install  
-'''  
+```
 E por fim, inicializar a aplicação do streamlit:  
-'''bash  
+```bash  
 streamlit run app/main.py  
-'''
+```
 
 
 
