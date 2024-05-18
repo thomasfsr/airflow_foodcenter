@@ -8,7 +8,6 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 pandas = "^2.2.2"
-gdown = "*"
 sqlalchemy = "<2"
 pandera = "0.18.3"
 psycopg2-binary = "2.9.9"
@@ -16,15 +15,16 @@ pyarrow = "*"
 python-dotenv = "<2.0"
 pandas-datareader = "0.10.0"
 
-google-api-python-client = "2.125.0"
-google-auth-oauthlib="1.2.0"
-jupyter = "^1.0.0"
-uvicorn = "^0.29.0"
 streamlit = "^1.34.0"
 altair = "^5.3.0"
 streamlit-option-menu = "^0.3.12"
+taskipy = "^1.12.2"
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.taskipy.tasks]
+run = "streamlit run app/main.py"
+kill = "kill -9 $(lsof -t -i :8501)"
