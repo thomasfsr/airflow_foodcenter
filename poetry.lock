@@ -3311,6 +3311,20 @@ watchdog = {version = ">=2.1.5", markers = "platform_system != \"Darwin\""}
 snowflake = ["snowflake-connector-python (>=2.8.0)", "snowflake-snowpark-python (>=0.9.0)"]
 
 [[package]]
+name = "streamlit-option-menu"
+version = "0.3.12"
+description = "streamlit-option-menu is a simple Streamlit component that allows users to select a single item from a list of options in a menu."
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "streamlit-option-menu-0.3.12.tar.gz", hash = "sha256:a954241cf188691f17072cf3ceb59e97f106f7492ddb5b79c4d42906758a5af2"},
+    {file = "streamlit_option_menu-0.3.12-py3-none-any.whl", hash = "sha256:f83045da205f83464e6606a80facfec2cde49fe750e1148eb275c88ddcca35b9"},
+]
+
+[package.dependencies]
+streamlit = ">=0.63"
+
+[[package]]
 name = "tenacity"
 version = "8.3.0"
 description = "Retry code until it succeeds"
@@ -3754,4 +3768,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "97328d40f68df33c4e49bb461d15ab48657205e8976ff9ed8f6db5ccde0bb433"
+content-hash = "eb4261bac21d88bd8de93441b27cba365d9b84e2cc9dab7d09f61b1e5e789d42"
