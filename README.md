@@ -1,4 +1,4 @@
-Reports: https://airflow-foodcenter.onrender.com  
+Relatório online: https://airflow-foodcenter.onrender.com  
 
 #### Tarefas:  
 - Numa ação de marketing, para atrair mais entregadores, vamos dar uma bonificação para os 20 entregadores que possuem maior distância percorrida ao todo. A bonificação vai variar de acordo com o tipo de profissional que ele é e o modelo que ele usa para se locomover (moto, bike, etc). Levante essas informações.  
@@ -36,7 +36,7 @@ external_url = ***
   
 Obs.: A variável de ambiente folder só está disponivel porque é uma pasta pública no google drive. Porém os mesmos dados podem ser encontrados no Kaggle: https://www.kaggle.com/datasets/nosbielcs/brazilian-delivery-center
 
-- Startar o servidor airflow:  
+- Start no servidor airflow:  
 ```bash
 astro dev start
 ``` 
@@ -46,9 +46,9 @@ A primeira dag irá carregar as tabelas do google drive, validar as colunas com 
   
 Em seguida será criado outros dois schemas "Silver" e "Gold".  
 Silver: Views e Materialized Views com os dados limpos e concatenando os dados necessários para o cálculos dos KPIs.  
-Gold: Tabelas com a data de criação constando os KPIs até aquele periodo.  
+Gold: Tabelas de KPIs utilizando valores atualizados até aquele periodo.  
   
-A DAG top20dag é "startada" semanalmente, calculando os KPIs até aquele dia da semana.  
+A DAG weekly_dag é irá criar novas tabelas calculando os KPIs com os valores atualizados.  
   
 #### Relatório com Streamlit:  
 Para inicializar é necessário instalar as dependências com o poetry:  
