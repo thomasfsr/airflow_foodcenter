@@ -36,7 +36,7 @@ with quartiles as (
     select  
         percentile_cont(0.25) WITHIN GROUP (ORDER BY delivery_distance_meters) AS Q1,
         percentile_cont(0.75) WITHIN GROUP (ORDER BY delivery_distance_meters) AS Q3
-    FROM silver.delivered_v
+    FROM silver.dv
 	),
 	
 	iqr as (
@@ -51,42 +51,42 @@ with quartiles as (
 	
 	delivered_no_outliers as (
 	SELECT * FROM 
-    silver.delivered_v
+    silver.delivered_v dv
 	JOIN 
     bounds
 	ON 
-    silver.delivered_v.delivery_distance_meters <= bounds.upper_bound
+    silver.dv.delivery_distance_meters <= bounds.upper_bound
 	)
-	select * from delivered_no_outliers
+	select dv.* from delivered_no_outliers
 ;
 --outliers in order amount 
 CREATE MATERIALIZED VIEW silver.clean_delivered_mv AS
-with quartiles2 as (
+with quartiles as (
     select  
         percentile_cont(0.25) WITHIN GROUP (ORDER BY order_amount) AS Q1,
         percentile_cont(0.75) WITHIN GROUP (ORDER BY order_amount) AS Q3
     FROM silver.delivered_no_distance_outliers_v
 	),
 	
-	iqr2 as (
-    select quartiles2.Q3 - quartiles2.Q1 AS IQR
-    from quartiles2 
+	iqr as (
+    select quartiles.Q3 - quartiles.Q1 AS IQR
+    from quartiles
 	),
 	
-	bounds2 AS (
-    SELECT quartiles2.Q3 + 1.5 *iqr2.IQR AS upper_bound2
-    from quartiles2, iqr2
+	bounds AS (
+    SELECT quartiles.Q3 + 1.5 *iqr.IQR AS upper_bound
+    from quartiles, iqr
 	),
 	
-	delivered_no_outliers2 as (
-	SELECT * FROM 
-    silver.delivered_no_distance_outliers_v
+	delivered_no_outliers as (
+	SELECT dv.* FROM 
+    silver.delivered_no_distance_outliers_v dv
 	JOIN 
-    bounds2
+    bounds
 	ON 
-    silver.delivered_no_distance_outliers_v.delivery_distance_meters <= bounds2.upper_bound2
+    silver.dv.delivery_distance_meters <= bounds.upper_bound
 	)
-	select * from delivered_no_outliers2
+	select * from delivered_no_outliers
 ;
 
 CREATE MATERIALIZED VIEW silver.ranking_all_mv AS
@@ -109,7 +109,7 @@ CREATE MATERIALIZED VIEW silver.ranking_all_mv AS
 
 DO $$
 BEGIN
-    EXECUTE 'CREATE TABLE gold.ranking_20_stratified_' || to_char(current_date, 'YYYY_MM_DD') || ' AS
+    EXECUTE 'CREATE TABLE gold.top20_ranking_stratified_' || to_char(current_date, 'YYYY_MM_DD') || ' AS
         WITH clean_drivers AS (
             SELECT DISTINCT
                 cd.driver_id,
@@ -246,3 +246,44 @@ BEGIN
         )
         SELECT * FROM concating;';
 END $$;
+
+DO $$
+BEGIN
+    EXECUTE 'CREATE TABLE gold.distance_mean_state_' || to_char(current_date, 'YYYY_MM_DD') || ' AS
+select 
+CAST(AVG(cdm.delivery_distance_meters) AS DECIMAL(10,2)) AS mean,
+cdm.hub_state 
+from silver.clean_delivered_mv cdm 
+join raw.drivers d on cdm.driver_id = d.driver_id 
+where d.driver_modal = upper(''motoboy'') 
+group by hub_state '
+;
+END $$;
+
+DO $$
+BEGIN
+    EXECUTE 'CREATE TABLE gold.revenue_segment_' || to_char(current_date, 'YYYY_MM_DD') || ' AS
+    SELECT 
+        cdm.store_segment, 
+        CAST(AVG(cdm.order_amount) AS DECIMAL(10,2)) AS average_revenue, 
+        CAST(SUM(cdm.order_amount) AS DECIMAL(10,2)) AS total_revenue
+    FROM 
+        silver.clean_delivered_mv cdm 
+    GROUP BY 
+        cdm.store_segment';
+END $$;
+
+DO $$
+BEGIN
+    EXECUTE 'CREATE TABLE gold.revenue_state_' || to_char(current_date, 'YYYY_MM_DD') || ' AS
+    SELECT 
+        cdm.hub_state,
+        CAST(AVG(cdm.order_amount) AS DECIMAL(10,2)) AS average_revenue, 
+        CAST(SUM(cdm.order_amount) AS DECIMAL(10,2)) AS total_revenue
+    FROM 
+        silver.clean_delivered_mv cdm 
+    GROUP BY 
+        cdm.hub_state
+    order by total_revenue desc ';
+END $$;
+
