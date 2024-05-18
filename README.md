@@ -41,12 +41,12 @@ Obs.: A variável de ambiente folder só está disponivel porque é uma pasta p�
 astro dev start
 ``` 
   
--Ordem de ativação:  
+- Ordem de ativação:  
 No painel do airflow deverá ser inicializado a DAG etldag primeiro e após concluído pode ser inicializado a DAG weekly_dag.  
   
-A primeira dag irá carregar as tabelas do google drive, validar as colunas com Pandera e, após validado, vai carregar as tabelas para o schema "Raw" do banco de dados PostgreSQL.  
+-  A primeira dag irá carregar as tabelas do google drive, validar as colunas com Pandera e, após validado, vai carregar as tabelas para o schema "Raw" do banco de dados PostgreSQL.  
   
-Em seguida será criado outros dois schemas "Silver" e "Gold".  
+- Em seguida será criado outros dois schemas "Silver" e "Gold".  
 Silver: Views e Materialized Views com os dados limpos e concatenando os dados necessários para o cálculos dos KPIs.  
 Gold: Tabelas de KPIs utilizando valores atualizados até aquele periodo.  
   
