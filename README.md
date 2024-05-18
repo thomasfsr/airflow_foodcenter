@@ -11,7 +11,7 @@ Reports: https://airflow-foodcenter.onrender.com
 #### Passos para rodar a aplicação:  
 - Clonar repo:  
 '''bash
-git clone https://github.com/thomasfsr/airflow_foodcenter  
+git clone https://github.com/thomasfsr/airflow_foodcenter
 cd airflow_foodcenter
 '''
 - Instalar Astronomer:  
