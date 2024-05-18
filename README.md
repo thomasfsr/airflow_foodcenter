@@ -41,7 +41,9 @@ Obs.: A variável de ambiente folder só está disponivel porque é uma pasta p�
 astro dev start
 ``` 
   
-No painel do airflow deverá ser inicializado a DAG etldag primeiro e após concluído pode ser inicializado a DAG top20dag.  
+-Ordem de ativação:  
+No painel do airflow deverá ser inicializado a DAG etldag primeiro e após concluído pode ser inicializado a DAG weekly_dag.  
+  
 A primeira dag irá carregar as tabelas do google drive, validar as colunas com Pandera e, após validado, vai carregar as tabelas para o schema "Raw" do banco de dados PostgreSQL.  
   
 Em seguida será criado outros dois schemas "Silver" e "Gold".  
