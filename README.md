@@ -21,6 +21,7 @@ brew install astro
 ``` 
 Antes de iniciar o Airflow via astro-cli algumas váriaveis de ambiente deverão ser passadas em um arquivo .env na raiz do projeto:  
   
+```
 #pasta do google drive
 folder_id = 1ek2v3SC1aPAfWmkcbZUl9Cxg0uKNIase
 
@@ -31,6 +32,7 @@ host = ***
 port = 5432
 database_name = ***  
 external_url = ***  
+```
   
 Obs.: A variável de ambiente folder só está disponivel porque é uma pasta pública no google drive. Porém os mesmos dados podem ser encontrados no Kaggle: https://www.kaggle.com/datasets/nosbielcs/brazilian-delivery-center
 
