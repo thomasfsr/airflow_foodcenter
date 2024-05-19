@@ -15,7 +15,7 @@ The main idea was to do a EDA (Exploratory Data Analysis) on this data to answer
 ## Tools Overview:  
   
 ### Orchestration:
-![](images/astro_air.png)(https://docs.astronomer.io/astro/cli/install-cli)  
+[![Image](images/astro_air.png)](https://docs.astronomer.io/astro/cli/install-cli)  
   
 For the ETL (Extract Transform Load) I used astronomer. Astronomer is a solution that builds in the whole infraestructure for Airflow server.  It uses **Docker Compose** to download the necessary images for Airflow and build them:
   
