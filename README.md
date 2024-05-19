@@ -1,6 +1,7 @@
 Online Report: https://airflow-foodcenter.onrender.com  
   
 # Overview:
+![](images/pipe.png) 
 The dataset from this project can be found [here in kaggle](https://www.kaggle.com/datasets/nosbielcs/brazilian-delivery-center).  
 The main idea was to do a EDA (Exploratory Data Analysis) on this data to answer some question, but I saw a good oportunity to flex some Airflow skills that I recently learned on the workshop of data engineering.  
   
