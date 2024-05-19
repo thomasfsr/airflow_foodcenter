@@ -1,13 +1,33 @@
-Relatório online: https://airflow-foodcenter.onrender.com  
-
-#### Tarefas:  
-- Numa ação de marketing, para atrair mais entregadores, vamos dar uma bonificação para os 20 entregadores que possuem maior distância percorrida ao todo. A bonificação vai variar de acordo com o tipo de profissional que ele é e o modelo que ele usa para se locomover (moto, bike, etc). Levante essas informações.  
+Online Report: https://airflow-foodcenter.onrender.com  
   
-- Além disso, o time de Pricing precisa ajustar os valores pagos aos entregadores. Para isso, eles precisam da distribuição da distância média percorrida pelos motoqueiros separada por estado, já que cada região terá seu preço.  
+# Overview:
+The dataset from this project can be found [here in kaggle](https://www.kaggle.com/datasets/nosbielcs/brazilian-delivery-center).  
+The main idea was to do a EDA (Exploratory Data Analysis) on this data to answer some question, but I saw a good oportunity to flex some Airflow skills that I recently learned on the workshop of data engineering.  
   
-- Por fim, o CFO precisa de alguns indicadores de receita para apresentar para a diretoria executiva. Dentre esses indicadores, vocês precisarão levantar (1) a receita média e total separada por tipo (Food x Good), (2) A receita média e total por estado. Ou seja, são 4 tabelas ao todo.  
+## Tasks [EN/PT]: 
+- Marketing Action: In a marketing action to attract more delivery drivers, we will offer a bonus to the top 20 drivers who have traveled the longest distances overall. The bonus will vary according to the type of professional they are and the mode of transportation they use (motorcycle, bike, etc). Gather this information.
+  
+- Pricing Team Requirement: Additionally, the Pricing team needs to adjust the payments to the delivery drivers. For this purpose, they require the distribution of the average distance traveled by motorcyclists separated by state since each region will have its own pricing.
+  
+- CFO's Requirement: Finally, the CFO needs some revenue indicators to present to the executive board. Among these indicators, you will need to gather (1) the average and total revenue separated by type (Food vs. Goods), (2) the average and total revenue per state. In other words, there are 4 tables in total. 
+  
 
+## Tools Overview:  
+  
+### Orchestration:
+![](images/astro_air.png)(https://docs.astronomer.io/astro/cli/install-cli)  
+  
+For the ETL (Extract Transform Load) I used astronomer. Astronomer is a solution that builds in the whole infraestructure for Airflow server.  It uses **Docker Compose** to download the necessary images for Airflow and build them:
+  
+![](images/compose.png)  
+  
+### Validation:  
+![](images/pandera_pandas.png)  
+  
+To validate each table that would be loaded to the database I choose pandera because it is fast and seamlessly integrates with pandas dataframes.  
+  
 
+# Installing and Start:
 #### Passos para rodar a aplicação:  
 - Clonar repo:  
 ```bash
@@ -38,7 +58,7 @@ Obs.: A variável de ambiente folder só está disponivel porque é uma pasta p�
 
 - Start no servidor airflow:  
 ```bash
-astro dev start
+astro dev start wait=20m
 ``` 
   
 - Ordem de ativação:  
