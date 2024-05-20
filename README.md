@@ -2,6 +2,7 @@ Online Report: https://airflow-foodcenter.onrender.com
   
 # Overview:
 ![](images/pipe.png) 
+  
 The dataset from this project can be found [here in kaggle](https://www.kaggle.com/datasets/nosbielcs/brazilian-delivery-center).  
 The main idea was to do a EDA (Exploratory Data Analysis) on this data to answer some question, but I saw a good oportunity to flex some Airflow skills that I recently learned on the workshop of data engineering.  
   
@@ -12,7 +13,173 @@ The main idea was to do a EDA (Exploratory Data Analysis) on this data to answer
   
 - CFO's Requirement: Finally, the CFO needs some revenue indicators to present to the executive board. Among these indicators, you will need to gather (1) the average and total revenue separated by type (Food vs. Goods), (2) the average and total revenue per state. In other words, there are 4 tables in total. 
   
+## Modelling:  
+The modelling design was mainly based on the tasks at proposed. You can see the EDA on the jupyter notebook found in the repository at the notebook folder.  
+Also, all the tranformation queries can be found in the directory: include/sql.  
+Main decision:  
+- Remove orders where driver_id was **Null**.  
+- Filter out by **delivered** orders.  
+- Remove outliers of distance and order value using IQR method.  
+- Aggregate order value and city/state for each order.  
+- Calculate the proportion of drivers by modal and type to make a segmented ranking. 
 
+### Steps:     
+#### Filter out by delivered and null:  
+For both task: revenues and rewarding drivers by total distance travelled, it would be fair to take into account only the delivered orders. 
+During EDA was also spotted some probable frauds or bugs in both, distance metric and order value.  
+**Worth mention** that most of those anomaly results was found in rows where driver_id was null. So null values was also removed.  
+  
+```sql
+CREATE VIEW silver.delivered_v AS
+WITH delivered_v AS (
+    select d.*,
+	o.order_amount ,
+	o.order_created_day ,
+	o.order_created_month ,
+	o.order_created_year ,
+	s.store_id ,
+	s.store_name ,
+	s.store_segment ,
+	s.store_plan_price ,
+	h.hub_name ,
+	h.hub_city ,
+	h.hub_state
+	FROM 
+	raw.deliveries d  
+	JOIN raw.orders o ON d.delivery_order_id = o.delivery_order_id 
+	JOIN raw.stores s ON o.store_id = s.store_id 
+	JOIN raw.hubs h ON s.hub_id = h.hub_id
+	WHERE d.delivery_status = UPPER('delivered')
+),
+
+delivered_notnull AS (
+    SELECT dd.*
+    FROM delivered_v dd
+    WHERE dd.driver_id IS NOT NULL
+)
+SELECT *
+FROM delivered_notnull;
+```
+A boxplot of the distribution of distance for data with no null driver_id and only null driver_id values:  
+![](images/nullbox.png)
+  
+#### Outliers:  
+As mentioned before, some of the spotted anomalies were in distance and value of the orders. Even though removing null values removed most of outliers, some remained. In raw data we can find:  
+![](images/out_amount.png)
+![](images/out_dis.png)
+  
+Method choose to remove those outliers was by positively skewed IQR (Interquartile Range).  
+![](images/iqr.png)  
+By the nature of the event the distribution is skewed for the right, and so, anomalies at the right tail was removed on the silver tier.  
+```sql
+CREATE VIEW silver.delivered_no_distance_outliers_v AS
+with quartiles as (
+    SELECT  
+        percentile_cont(0.25) WITHIN GROUP (ORDER BY delivery_distance_meters) AS Q1,
+        percentile_cont(0.75) WITHIN GROUP (ORDER BY delivery_distance_meters) AS Q3
+    FROM silver.dv
+	),
+	
+	iqr AS (
+    SELECT quartiles.Q3 - quartiles.Q1 AS IQR
+    FROM quartiles
+	),
+	
+	bounds AS (
+    SELECT quartiles.Q3 + 1.5 *iqr.IQR AS upper_bound
+    FROM quartiles, iqr
+	),
+	
+	delivered_no_outliers AS (
+	SELECT * FROM 
+    silver.delivered_v dv
+	JOIN 
+    bounds
+	ON 
+    silver.dv.delivery_distance_meters <= bounds.upper_bound
+	)
+	SELECT dv.* FROM delivered_no_outliers
+;
+--outliers in order amount 
+CREATE MATERIALIZED VIEW silver.clean_delivered_mv AS
+WITH quartiles AS (
+    SELECT  
+        percentile_cont(0.25) WITHIN GROUP (ORDER BY order_amount) AS Q1,
+        percentile_cont(0.75) WITHIN GROUP (ORDER BY order_amount) AS Q3
+    FROM silver.delivered_no_distance_outliers_v
+	),
+	
+	iqr AS (
+    SELECT quartiles.Q3 - quartiles.Q1 AS IQR
+    FROM quartiles
+	),
+	
+	bounds AS (
+    SELECT quartiles.Q3 + 1.5 *iqr.IQR AS upper_bound
+    FROM quartiles, iqr
+	),
+	
+	delivered_no_outliers AS (
+	SELECT dv.* FROM 
+    silver.delivered_no_distance_outliers_v dv
+	JOIN 
+    bounds
+	ON 
+    silver.dv.delivery_distance_meters <= bounds.upper_bound
+	)
+	SELECT * FROM delivered_no_outliers
+;
+```
+  
+#### Ranking:  
+First I created a general ranking without segmenting by the modals and types:  
+```sql
+CREATE MATERIALIZED VIEW silver.ranking_all_mv AS
+	WITH all_rank_drivers AS (
+		SELECT 
+		cd.driver_id,
+		d.driver_modal,
+		d.driver_type,
+        SUM(cd.order_amount) AS sum_of_amount_of_orders,
+		SUM(cd.delivery_distance_meters) AS sum_of_distance,
+        MAX(cd.delivery_distance_meters) AS max_distance,
+    	RANK() OVER (ORDER BY SUM(delivery_distance_meters) DESC) AS ranking
+		FROM 
+    	silver.clean_delivered_mv cd
+    	JOIN raw.drivers d ON cd.driver_id = d.driver_id
+		GROUP BY cd.driver_id, d.driver_modal, d.driver_type
+	)
+	SELECT * FROM all_rank_drivers
+;
+```
+For the segmented ranking I first calculated the proportion of each combination of type and modal, there are 4 combinations. Also I used PL(Procedural Language) SQL to create tables with the date of creation to keep track of until which date the calculation took into account.  
+Here a snippet of the query  (the whole code is in sql directory file "creating.sql"):  
+```sql
+DO $$
+BEGIN
+    EXECUTE 'CREATE TABLE gold.top20_ranking_stratified_' || to_char(current_date, 'YYYY_MM_DD') || ' AS
+        WITH clean_drivers AS (
+            SELECT DISTINCT
+                cd.driver_id,
+                d.driver_modal,
+                d.driver_type
+            FROM 
+                silver.clean_delivered_mv cd
+            JOIN 
+                raw.drivers d ON cd.driver_id = d.driver_id
+        ),
+proportion AS (
+            SELECT 
+                driver_modal,
+                driver_type,
+                COUNT(driver_id) AS counting,
+                ROUND(COUNT(driver_id)::numeric / sum(COUNT(driver_id)) OVER () * 16) AS proportion
+            FROM 
+                clean_drivers
+            GROUP BY 
+                driver_modal, driver_type
+        ),
+```
 ## Tools Overview:  
   
 ### Orchestration:
