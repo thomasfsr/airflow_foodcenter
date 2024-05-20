@@ -61,7 +61,8 @@ SELECT *
 FROM delivered_notnull;
 ```
 A boxplot of the distribution of distance for data with no null driver_id and only null driver_id values:  
-![](images/nullbox.png)
+![](images/nullbox.png)  
+As we can see, the distribution of the null data is skewed to bigger values and have much more outliers.  
   
 #### Outliers:  
 As mentioned before, some of the spotted anomalies were in distance and value of the orders. Even though removing null values removed most of outliers, some remained. In raw data we can find:  
