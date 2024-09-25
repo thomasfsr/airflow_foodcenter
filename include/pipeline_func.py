@@ -9,8 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 url = os.getenv('external_url')
-
-from include.infered_schema.schemas import schema_channels, schema_hubs, schema_deliveries,\
+from infered_schema.schemas import schema_channels, schema_hubs, schema_deliveries,\
       schema_drivers, schema_orders, schema_payments, schema_stores
 
 def create_schema(schema_name:str='raw', url:str=url):
@@ -94,8 +93,18 @@ def export_csvs_to_postgresql(data_folder: str = 'data', schema_name: str = 'raw
             reader = file_reader_mapping[file]
             tablename = file.split('.')[0]
             print(file_path)
-            df = reader(path=file_path)
-            df.to_sql(name=tablename, con=url, schema='raw', if_exists='fail',chunksize=2000)
+            df = reader(path=f'{file_path}')
+            # df.to_sql(name=tablename, con=url, schema='raw', if_exists='fail',chunksize=2000)
+            import duckdb
+            con = duckdb.connect()
+            con.install_extension('postgres')
+            con.load_extension('postgres')
+            con.sql(f"ATTACH '{url}' AS dbfood (TYPE POSTGRES)")
+            con.execute(f"""
+                        CREATE TABLE dbfood.raw.{tablename} AS
+                        SELECT * 
+                        FROM df
+                        """)
             print(f'{file} was written in PostgreSQL')
         else:
             print(f"No reader found for file: {file}")
