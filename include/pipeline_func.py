@@ -101,7 +101,7 @@ def export_csvs_to_postgresql(data_folder: str = 'data', schema_name: str = 'raw
             con.load_extension('postgres')
             con.sql(f"ATTACH '{url}' AS dbfood (TYPE POSTGRES)")
             con.execute(f"""
-                        CREATE TABLE dbfood.raw.{tablename} AS
+                        CREATE TABLE IF NOT EXISTS dbfood.raw.{tablename} AS
                         SELECT * 
                         FROM df
                         """)

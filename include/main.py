@@ -7,15 +7,15 @@ def postgres_pipe():
     # gdowner() # Não precisa fazer download novamente dos CSV.
 
     # def creating_schemas():
-    create_schema()
-    create_schema(schema_name='silver')
-    create_schema(schema_name='gold')
+    # create_schema()
+    # create_schema(schema_name='silver')
+    # create_schema(schema_name='gold')
  
     # def export_tables():
-    export_csvs_to_postgresql()
+    # export_csvs_to_postgresql()
 
     # def create_mvs():
-    # execute_sql_from_file('include/sql/creating.sql')
+    execute_sql_from_file('include/sql/creating.sql')
 
     # downloaded = downloading()
     # schema_created = creating_schemas()

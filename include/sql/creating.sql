@@ -1,27 +1,26 @@
 SET search_path TO raw, silver, gold;
 
+-- Create delivered_v view
 CREATE VIEW silver.delivered_v AS
 WITH delivered_v AS (
-    select d.*,
-	o.order_amount ,
-	o.order_created_day ,
-	o.order_created_month ,
-	o.order_created_year ,
-	s.store_id ,
-	s.store_name ,
-	s.store_segment ,
-	s.store_plan_price ,
-	h.hub_name ,
-	h.hub_city ,
-	h.hub_state
-	from 
-	raw.deliveries d  
-	join raw.orders o on d.delivery_order_id = o.delivery_order_id 
-	join raw.stores s on o.store_id = s.store_id 
-	join raw.hubs h on s.hub_id = h.hub_id
-	WHERE d.delivery_status = UPPER('delivered')
+    SELECT d.*,
+        o.order_amount,
+        o.order_created_day,
+        o.order_created_month,
+        o.order_created_year,
+        s.store_id,
+        s.store_name,
+        s.store_segment,
+        s.store_plan_price,
+        h.hub_name,
+        h.hub_city,
+        h.hub_state
+    FROM raw.deliveries d
+    JOIN raw.orders o ON d.delivery_order_id = o.delivery_order_id
+    JOIN raw.stores s ON o.store_id = s.store_id
+    JOIN raw.hubs h ON s.hub_id = h.hub_id
+    WHERE d.delivery_status = UPPER('delivered')
 ),
-
 delivered_notnull AS (
     SELECT dd.*
     FROM delivered_v dd
@@ -30,64 +29,83 @@ delivered_notnull AS (
 SELECT *
 FROM delivered_notnull;
 
---outliers in distance
+-- Outliers in distance
 CREATE VIEW silver.delivered_no_distance_outliers_v AS
-with quartiles as (
-    select  
+WITH quartiles AS (
+    SELECT
         percentile_cont(0.25) WITHIN GROUP (ORDER BY delivery_distance_meters) AS Q1,
         percentile_cont(0.75) WITHIN GROUP (ORDER BY delivery_distance_meters) AS Q3
-    FROM silver.dv
-	),
-	
-	iqr as (
-    select quartiles.Q3 - quartiles.Q1 AS IQR
-    from quartiles
-	),
-	
-	bounds AS (
-    SELECT quartiles.Q3 + 1.5 *iqr.IQR AS upper_bound
-    from quartiles, iqr
-	),
-	
-	delivered_no_outliers as (
-	SELECT * FROM 
-    silver.delivered_v dv
-	JOIN 
-    bounds
-	ON 
-    silver.dv.delivery_distance_meters <= bounds.upper_bound
-	)
-	select dv.* from delivered_no_outliers
-;
---outliers in order amount 
+    FROM silver.delivered_v
+),
+iqr AS (
+    SELECT Q3 - Q1 AS IQR
+    FROM quartiles
+),
+bounds AS (
+    SELECT Q3 + 1.5 * IQR AS upper_bound
+    FROM quartiles, iqr
+),
+delivered_no_outliers AS (
+    SELECT *
+    FROM silver.delivered_v dv
+    JOIN bounds ON dv.delivery_distance_meters <= bounds.upper_bound
+)
+SELECT *
+FROM delivered_no_outliers;
+
+-- Outliers in order amount
 CREATE MATERIALIZED VIEW silver.clean_delivered_mv AS
-with quartiles as (
-    select  
+WITH quartiles AS (
+    SELECT
         percentile_cont(0.25) WITHIN GROUP (ORDER BY order_amount) AS Q1,
         percentile_cont(0.75) WITHIN GROUP (ORDER BY order_amount) AS Q3
     FROM silver.delivered_no_distance_outliers_v
-	),
+),
+iqr AS (
+    SELECT Q3 - Q1 AS IQR
+    FROM quartiles
+),
+bounds AS (
+    SELECT Q3 + 1.5 * IQR AS upper_bound
+    FROM quartiles, iqr
+),
+delivered_no_outliers AS (
+    SELECT dv.*
+    FROM silver.delivered_no_distance_outliers_v dv
+    JOIN bounds ON dv.order_amount <= bounds.upper_bound
+)
+SELECT *
+FROM delivered_no_outliers;
+
+--outliers in order amount 
+-- CREATE MATERIALIZED VIEW silver.clean_delivered_mv AS
+-- with quartiles as (
+--     select  
+--         percentile_cont(0.25) WITHIN GROUP (ORDER BY order_amount) AS Q1,
+--         percentile_cont(0.75) WITHIN GROUP (ORDER BY order_amount) AS Q3
+--     FROM silver.delivered_no_distance_outliers_v
+-- 	),
 	
-	iqr as (
-    select quartiles.Q3 - quartiles.Q1 AS IQR
-    from quartiles
-	),
+-- 	iqr as (
+--     select quartiles.Q3 - quartiles.Q1 AS IQR
+--     from quartiles
+-- 	),
 	
-	bounds AS (
-    SELECT quartiles.Q3 + 1.5 *iqr.IQR AS upper_bound
-    from quartiles, iqr
-	),
+-- 	bounds AS (
+--     SELECT quartiles.Q3 + 1.5 *iqr.IQR AS upper_bound
+--     from quartiles, iqr
+-- 	),
 	
-	delivered_no_outliers as (
-	SELECT dv.* FROM 
-    silver.delivered_no_distance_outliers_v dv
-	JOIN 
-    bounds
-	ON 
-    silver.dv.delivery_distance_meters <= bounds.upper_bound
-	)
-	select * from delivered_no_outliers
-;
+-- 	delivered_no_outliers as (
+-- 	SELECT dv.* FROM 
+--     silver.delivered_no_distance_outliers_v dv
+-- 	JOIN 
+--     bounds
+--     ON dv.delivery_distance_meters <= bounds.upper_bound
+-- 	)
+
+-- select * from delivered_no_outliers
+-- ;
 
 CREATE MATERIALIZED VIEW silver.ranking_all_mv AS
 	with all_rank_drivers as (
@@ -109,7 +127,7 @@ CREATE MATERIALIZED VIEW silver.ranking_all_mv AS
 
 DO $$
 BEGIN
-    EXECUTE 'CREATE TABLE gold.top20_ranking_stratified_' || to_char(current_date, 'YYYY_MM_DD') || ' AS
+    EXECUTE 'CREATE TABLE IF NOT EXISTS gold.top20_ranking_stratified_' || to_char(current_date, 'YYYY_MM_DD') || ' AS
         WITH clean_drivers AS (
             SELECT DISTINCT
                 cd.driver_id,
@@ -249,7 +267,7 @@ END $$;
 
 DO $$
 BEGIN
-    EXECUTE 'CREATE TABLE gold.distance_mean_state_' || to_char(current_date, 'YYYY_MM_DD') || ' AS
+    EXECUTE 'CREATE TABLE IF NOT EXISTS gold.distance_mean_state_' || to_char(current_date, 'YYYY_MM_DD') || ' AS
 select 
 CAST(AVG(cdm.delivery_distance_meters) AS DECIMAL(10,2)) AS mean,
 cdm.hub_state 
@@ -262,7 +280,7 @@ END $$;
 
 DO $$
 BEGIN
-    EXECUTE 'CREATE TABLE gold.revenue_segment_' || to_char(current_date, 'YYYY_MM_DD') || ' AS
+    EXECUTE 'CREATE TABLE IF NOT EXISTS gold.revenue_segment_' || to_char(current_date, 'YYYY_MM_DD') || ' AS
     SELECT 
         cdm.store_segment, 
         CAST(AVG(cdm.order_amount) AS DECIMAL(10,2)) AS average_revenue, 
@@ -275,7 +293,7 @@ END $$;
 
 DO $$
 BEGIN
-    EXECUTE 'CREATE TABLE gold.revenue_state_' || to_char(current_date, 'YYYY_MM_DD') || ' AS
+    EXECUTE 'CREATE TABLE IF NOT EXISTS gold.revenue_state_' || to_char(current_date, 'YYYY_MM_DD') || ' AS
     SELECT 
         cdm.hub_state,
         CAST(AVG(cdm.order_amount) AS DECIMAL(10,2)) AS average_revenue, 
@@ -286,4 +304,3 @@ BEGIN
         cdm.hub_state
     order by total_revenue desc ';
 END $$;
-
